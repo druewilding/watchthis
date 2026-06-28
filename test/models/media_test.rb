@@ -41,18 +41,54 @@ class MediaTest < ActiveSupport::TestCase
   end
 
   test "find_or_create_from_url creates new record for unseen generic URL" do
-    assert_difference "Media.count" do
-      Media.find_or_create_from_url("https://example.com/brand-new-page", added_by: users(:alice))
+    stub_og_fetch(nil) do
+      assert_difference "Media.count" do
+        Media.find_or_create_from_url("https://example.com/brand-new-page", added_by: users(:alice))
+      end
+    end
+  end
+
+  test "find_or_create_from_url fetches OG metadata for generic URL" do
+    html = <<~HTML
+      <html><head>
+        <meta property="og:title" content="Varme og hedebølge over Europa">
+        <meta property="og:description" content="Her er vejrudsigten for den kommende uge.">
+        <meta property="og:image" content="https://www.dr.dk/image.jpg">
+        <meta property="og:site_name" content="DR">
+      </head></html>
+    HTML
+    stub_og_fetch(html) do
+      media = Media.find_or_create_from_url("https://www.dr.dk/nyheder/vejret/varme-og-hedeboelge-over-europa", added_by: users(:alice))
+      assert_equal "Varme og hedebølge over Europa", media.title
+      assert_equal "Her er vejrudsigten for den kommende uge.", media.description
+      assert_equal "https://www.dr.dk/image.jpg", media.thumbnail_url
+      assert_equal "DR", media.site_name
+      assert_equal "generic", media.platform
     end
   end
 
   test "find_or_create_from_url fetches YouTube metadata via oEmbed" do
     oembed = '{"title":"Test Video","thumbnail_url":"https://i.ytimg.com/vi/xyz/hq.jpg","author_name":"Test Channel"}'
-    stub_oembed(oembed) do
-      media = Media.find_or_create_from_url("https://www.youtube.com/watch?v=newvid123", added_by: users(:alice))
-      assert_equal "Test Video", media.title
-      assert_equal "Test Channel", media.author
-      assert_equal "youtube", media.platform
+    stub_og_fetch(nil) do
+      stub_oembed(oembed) do
+        media = Media.find_or_create_from_url("https://www.youtube.com/watch?v=newvid123", added_by: users(:alice))
+        assert_equal "Test Video", media.title
+        assert_equal "Test Channel", media.author
+        assert_equal "youtube", media.platform
+      end
+    end
+  end
+
+  test "find_or_create_from_url fetches description from OG metadata for YouTube" do
+    oembed = '{"title":"Test Video","thumbnail_url":"https://i.ytimg.com/vi/xyz/hq.jpg","author_name":"Test Channel"}'
+    html = '<meta property="og:description" content="A great video about things">'
+    stub_og_fetch(html) do
+      stub_oembed(oembed) do
+        media = Media.find_or_create_from_url("https://www.youtube.com/watch?v=newvid456", added_by: users(:alice))
+        assert_equal "Test Video", media.title
+        assert_equal "Test Channel", media.author
+        assert_equal "A great video about things", media.description
+      end
     end
   end
 end

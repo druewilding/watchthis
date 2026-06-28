@@ -17,6 +17,8 @@ generic_article:
   normalized_url: https://example.com/article
   platform: generic
   title: An Interesting Article
+  description: A very interesting article about something
+  site_name: Example
   added_by_id: 663665735
   created_at: 2024-01-01 00:00:00
   updated_at: 2024-01-01 00:00:00

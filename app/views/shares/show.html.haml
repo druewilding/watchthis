@@ -8,10 +8,19 @@
   - if @share.media.youtube?
     .video-embed{ style: "position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;" }
       %iframe{ src: @share.media.embed_url, style: "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;", allowfullscreen: true, allow: "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" }
+    - if @share.media.description.present?
+      = prose do
+        = p(@share.media.description)
   - else
-    = prose do
-      = p do
-        = a({ href: @share.media.url, target: "_blank" }, "Open link")
+    = cluster({ gap: 4, align: "flex-start" }) do
+      - if @share.media.thumbnail_url.present?
+        %img{ src: @share.media.thumbnail_url, alt: @share.media.title || "", style: "width: 160px; border-radius: 4px; flex-shrink: 0;" }
+      = prose do
+        - if @share.media.description.present?
+          = p(@share.media.description)
+        = p("This content can't be embedded here.")
+        = p do
+          = a({ href: @share.media.url, target: "_blank" }, "View on #{@share.media.site_name.presence || "the original site"} →")
   = cluster({ gap: 3 }) do
     - if @share.status != "watched"
       = form_with(url: list_list_item_path(current_user.inbox, @share.list_item), method: :patch, style: "display: inline;") do |f|
