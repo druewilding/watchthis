@@ -27,6 +27,7 @@ class InboxSystemTest < ApplicationSystemTestCase
   test "mark watched from share page redirects to dashboard with notice" do
     visit share_url(shares(:alice_youtube))
     click_on "Mark watched"
+    assert_selector "h1", text: "Inbox"
     assert_text "Marked as watched"
     assert_current_path dashboard_path
   end
