@@ -1,5 +1,16 @@
 - content_for :title, "Friends"
 
+= section do
+  = stack({ narrow: true }) do
+    = card do
+      = prose do
+        = h2({ id: "add" }, "Add a friend")
+        = p("Enter their email address to send a connection request.")
+      = form_with(url: friendships_path, method: :post) do |f|
+        = stack({ gap: 3 }) do
+          = f.klods_field :email, label: "Email address", type: :email, required: true, placeholder: "friend@example.com"
+          = f.klods_submit "Send request"
+
 - if @incoming_requests.any?
   = section do
     = stack({ gap: 4 }) do
@@ -40,7 +51,7 @@
         = p("No friends yet — but you have pending requests out.")
     - else
       = prose do
-        = p("No friends yet. Add someone below!")
+        = p("No friends yet. Add someone!")
     - if @outgoing_requests.any?
       = prose do
         = h2("Pending requests sent")
@@ -52,14 +63,3 @@
                 = muted("Waiting for #{friendship.friend.name_or_email} to accept")
               = form_with(url: friendship_path(friendship), method: :delete) do |f|
                 = f.button("Cancel", class: "klods-button klods-button--sm")
-
-= section do
-  = stack({ narrow: true }) do
-    = card do
-      = prose do
-        = h2({ id: "add" }, "Add a friend")
-        = p("Enter their email address to send a connection request.")
-      = form_with(url: friendships_path, method: :post) do |f|
-        = stack({ gap: 3 }) do
-          = f.klods_field :email, label: "Email address", type: :email, required: true, placeholder: "friend@example.com"
-          = f.klods_submit "Send request"
