@@ -131,7 +131,7 @@ class Media < ApplicationRecord
     end
 
     def parse_published_time(html)
-      tag = html.match(/<meta\b[^>]*\bproperty=["']article:published_time["'][^>]*>/i)&.to_s ||
+      tag = html.match(/<meta\b[^>]*\b(?:property|name)=["']article:published_time["'][^>]*>/i)&.to_s ||
         html.match(/<meta\b[^>]*\bitemprop=["']datePublished["'][^>]*>/i)&.to_s
       return unless tag
       content = tag.match(/\bcontent="([^"]*)"/) || tag.match(/\bcontent='([^']*)'/)

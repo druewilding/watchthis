@@ -53,6 +53,14 @@ class MediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "find_or_create_from_url parses article:published_time via name attribute" do
+    html = '<meta name="article:published_time" content="2026-06-28T12:28:15.679Z">'
+    stub_og_fetch(html) do
+      media = Media.find_or_create_from_url("https://example.com/named-article", added_by: users(:alice))
+      assert_equal Time.zone.parse("2026-06-28T12:28:15.679Z"), media.published_at
+    end
+  end
+
   test "find_or_create_from_url parses article:published_time for generic URL" do
     html = '<meta property="article:published_time" content="2026-06-28T10:00:00+00:00">'
     stub_og_fetch(html) do
