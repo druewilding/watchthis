@@ -24,8 +24,8 @@
             = p do
               = a({ href: @share.media.url, target: "_blank" }, "View on #{@share.media.site_name.presence || "the original site"} →")
   - else
-    = prose({ data: { controller: "pending" } }) do
-      = muted("Fetching page details…")
+    = prose({ data: { controller: "pending", pending_url_value: metadata_status_share_url(@share) } }) do
+      = muted("Fetching media details ...")
   = cluster({ gap: 3 }) do
     - if @share.status != "watched"
       = form_with(url: list_list_item_path(current_user.inbox, @share.list_item), method: :patch, style: "display: inline;") do |f|
