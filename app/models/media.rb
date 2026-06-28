@@ -46,6 +46,7 @@ class Media < ApplicationRecord
         author: metadata[:author],
         description: metadata[:description],
         site_name: metadata[:site_name],
+        published_at: metadata[:published_at],
         added_by: added_by
       )
     end
@@ -96,7 +97,8 @@ class Media < ApplicationRecord
         title: og_tag(html, "title"),
         description: og_tag(html, "description"),
         thumbnail_url: og_tag(html, "image"),
-        site_name: og_tag(html, "site_name")
+        site_name: og_tag(html, "site_name"),
+        published_at: parse_published_time(html)
       }.compact
     rescue
       {}
@@ -126,6 +128,16 @@ class Media < ApplicationRecord
       return unless tag
       content = tag.match(/\bcontent="([^"]*)"/) || tag.match(/\bcontent='([^']*)'/)
       CGI.unescapeHTML(content[1]).presence if content
+    end
+
+    def parse_published_time(html)
+      tag = html.match(/<meta\b[^>]*\bproperty=["']article:published_time["'][^>]*>/i)&.to_s ||
+        html.match(/<meta\b[^>]*\bitemprop=["']datePublished["'][^>]*>/i)&.to_s
+      return unless tag
+      content = tag.match(/\bcontent="([^"]*)"/) || tag.match(/\bcontent='([^']*)'/)
+      Time.zone.parse(content[1]) if content
+    rescue
+      nil
     end
   end
 end
