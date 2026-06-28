@@ -60,6 +60,11 @@ class Media < ApplicationRecord
         return "https://www.youtube.com/watch?v=#{id}"
       end
 
+      if uri.host&.match?(/youtube\.com/) && uri.path.start_with?("/shorts/")
+        id = uri.path.split("/").last
+        return "https://www.youtube.com/watch?v=#{id}"
+      end
+
       if uri.host&.match?(/youtube\.com/) && uri.path == "/watch"
         params = URI.decode_www_form(uri.query.to_s).to_h
         return "https://www.youtube.com/watch?v=#{params["v"]}" if params["v"]
