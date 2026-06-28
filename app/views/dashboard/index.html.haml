@@ -1,0 +1,38 @@
+- content_for :title, "Dashboard"
+- content_for :sidebar do
+  = toc do
+    = toc_item(toc_link({ href: "#inbox" }, "Inbox"))
+    = toc_item(toc_link({ href: "#add" }, "Add something"))
+
+= stack({ gap: 8 }) do
+  = prose do
+    = h1({ id: "inbox" }, "Inbox")
+  - if @inbox_items.empty?
+    = prose do
+      = p("Nothing in your inbox yet. Add something below!")
+  - else
+    = stack({ gap: 4 }) do
+      - @inbox_items.each do |item|
+        = card do
+          = cluster({ gap: 4 }) do
+            - if item.media.thumbnail_url.present?
+              %img{ src: item.media.thumbnail_url, alt: "", style: "width: 120px; border-radius: 4px; flex-shrink: 0;" }
+            = stack({ gap: 1 }) do
+              = card_title(item.media.title || item.media.url)
+              - if item.media.author.present?
+                = muted(item.media.author)
+              = cluster({ gap: 2 }) do
+                = button({ variant: "primary", href: share_path(item.share), size: "sm" }, "Watch")
+                - if item.status != "watched"
+                  = form_with(url: list_list_item_path(current_user.inbox, item), method: :patch, style: "display: inline;") do |f|
+                    = f.hidden_field :status, value: "watched"
+                    = f.button("Mark watched", class: "klods-button klods-button--sm")
+                - else
+                  = badge({ variant: "success" }, "Watched")
+
+  = prose do
+    = h2({ id: "add" }, "Add something")
+  = form_with(url: media_path, method: :post) do |f|
+    = stack({ gap: 3 }) do
+      = f.klods_field :url, label: "URL", type: :url, placeholder: "https://www.youtube.com/watch?v=...", required: true
+      = f.klods_submit "Add to inbox"
