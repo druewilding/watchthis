@@ -12,15 +12,16 @@
       = prose do
         = p(@share.media.description)
   - else
-    = cluster({ gap: 4, align: "flex-start" }) do
+    = row({ gap: 4, style: "align-items: flex-start;" }) do
       - if @share.media.thumbnail_url.present?
         %img{ src: @share.media.thumbnail_url, alt: @share.media.title || "", style: "width: 160px; border-radius: 4px; flex-shrink: 0;" }
-      = prose do
-        - if @share.media.description.present?
-          = p(@share.media.description)
-        = p("This content can't be embedded here.")
-        = p do
-          = a({ href: @share.media.url, target: "_blank" }, "View on #{@share.media.site_name.presence || "the original site"} →")
+      = fill do
+        = prose do
+          - if @share.media.description.present?
+            = p(@share.media.description)
+          = p("This content can't be embedded here.")
+          = p do
+            = a({ href: @share.media.url, target: "_blank" }, "View on #{@share.media.site_name.presence || "the original site"} →")
   = cluster({ gap: 3 }) do
     - if @share.status != "watched"
       = form_with(url: list_list_item_path(current_user.inbox, @share.list_item), method: :patch, style: "display: inline;") do |f|
