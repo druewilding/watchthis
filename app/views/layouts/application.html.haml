@@ -27,11 +27,9 @@
       - if user_signed_in?
         = sidebar do
           = toc do
-            = toc_item(toc_link({ href: dashboard_path }, "Inbox"))
-            = toc_item(toc_link({ href: friendships_path }, "Friends"))
-            = toc_item(toc_link({ href: settings_path }, "Settings"))
-          - if content_for?(:sidebar)
-            = content_for(:sidebar)
+            = toc_item(toc_link({ href: dashboard_path, active: request.path == dashboard_path }, "Inbox"))
+            = toc_item(toc_link({ href: friendships_path, active: request.path.start_with?(friendships_path) }, "Friends"))
+            = toc_item(toc_link({ href: settings_path, active: request.path == settings_path }, "Settings"))
       = content do
         = stack({ gap: 6 }) do
           - if notice.present?

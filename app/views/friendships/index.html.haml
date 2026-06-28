@@ -1,10 +1,4 @@
 - content_for :title, "Friends"
-- content_for :sidebar do
-  = toc do
-    - if @incoming_requests.any?
-      = toc_item(toc_link({ href: "#requests" }, "Requests (#{@incoming_requests.count})"))
-    = toc_item(toc_link({ href: "#friends" }, "Friends"))
-    = toc_item(toc_link({ href: "#add" }, "Add a friend"))
 
 - if @incoming_requests.any?
   = section do
