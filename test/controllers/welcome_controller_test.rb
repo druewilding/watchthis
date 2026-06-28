@@ -10,7 +10,7 @@ class WelcomeControllerTest < ActionDispatch::IntegrationTest
     get ping_url
     assert_response :success
     assert_equal "text/plain; charset=utf-8", response.content_type
-    assert_match "RailsServerTemplate", response.body
+    assert_match "Watchthis", response.body
     assert_match Rails::VERSION::STRING, response.body
   end
 end
