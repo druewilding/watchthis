@@ -13,7 +13,7 @@ class SharesController < ApplicationController
       media: media,
       message: share_params[:message]
     )
-    redirect_back_or_to(dashboard_path), notice: "Shared with #{to_user.name_or_email}!", status: :see_other
+    redirect_back_or_to dashboard_path, notice: "Shared with #{to_user.name_or_email}!", status: :see_other
   rescue ActiveRecord::RecordNotFound
     redirect_to dashboard_path, alert: "Friend not found.", status: :see_other
   rescue ActiveRecord::RecordInvalid => e
