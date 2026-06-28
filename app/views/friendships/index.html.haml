@@ -54,11 +54,12 @@
                 = f.button("Cancel", class: "klods-button klods-button--sm")
 
 = section do
-  = stack({ gap: 4, narrow: true }) do
-    = prose do
-      = h2({ id: "add" }, "Add a friend")
-      = p("Enter their email address to send a connection request.")
-    = form_with(url: friendships_path, method: :post) do |f|
-      = stack({ gap: 3 }) do
-        = f.klods_field :email, label: "Email address", type: :email, required: true, placeholder: "friend@example.com"
-        = f.klods_submit "Send request"
+  = stack({ narrow: true }) do
+    = card do
+      = prose do
+        = h2({ id: "add" }, "Add a friend")
+        = p("Enter their email address to send a connection request.")
+      = form_with(url: friendships_path, method: :post) do |f|
+        = stack({ gap: 3 }) do
+          = f.klods_field :email, label: "Email address", type: :email, required: true, placeholder: "friend@example.com"
+          = f.klods_submit "Send request"
