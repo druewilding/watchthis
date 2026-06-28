@@ -390,7 +390,7 @@ scalingo --app watchthis run rails db:migrate
 Or add a `release` command to `Procfile` to run migrations automatically on each deploy:
 
 ```
-release: bundle exec rails db:migrate
+postdeploy: bundle exec rails db:migrate
 web: bundle exec puma -C config/puma.rb
 ```
 
