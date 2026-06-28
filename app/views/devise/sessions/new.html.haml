@@ -1,16 +1,17 @@
 - content_for :title, "Sign in — WatchThis"
 
-= stack({ gap: 6, narrow: true }) do
-  = prose do
-    = h1("Sign in")
-    = p do
-      = "New to WatchThis? "
-      = link_to("Create an account", new_user_registration_path)
+= stack({ narrow: true }) do
+  = card do
+    = prose do
+      = h1("Sign in")
+      = p do
+        = "New to WatchThis? "
+        = link_to("Create an account", new_user_registration_path)
 
-  = form_with(model: resource, as: resource_name, url: session_path(resource_name)) do |f|
-    = stack({ gap: 4 }) do
-      = f.klods_field :email, label: "Email", type: :email, autofocus: true, autocomplete: "email"
-      = f.klods_field :password, label: "Password", type: :password, autocomplete: "current-password"
-      = cluster({ gap: 3 }) do
-        = f.klods_submit "Sign in"
-        = link_to "Forgot your password?", new_user_password_path, class: "klods-button klods-button--ghost"
+    = form_with(model: resource, as: resource_name, url: session_path(resource_name)) do |f|
+      = stack({ gap: 4 }) do
+        = f.klods_field :email, label: "Email", type: :email, autofocus: true, autocomplete: "email"
+        = f.klods_field :password, label: "Password", type: :password, autocomplete: "current-password"
+        = cluster({ gap: 3 }) do
+          = f.klods_submit "Sign in"
+          = link_to "Forgot your password?", new_user_password_path, class: "klods-button klods-button--ghost"
