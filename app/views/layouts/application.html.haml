@@ -1,0 +1,29 @@
+!!! 5
+%html{ lang: "en", "data-theme": "dark" }
+  %head
+    %title= content_for(:title) || "Rails Server Template"
+    %meta{ charset: "UTF-8" }
+    %meta{ name: "viewport", content: "width=device-width, initial-scale=1.0" }
+    = csrf_meta_tags
+    = csp_meta_tag
+    %link{ rel: "icon", href: "/icon.png", type: "image/png" }
+    %link{ rel: "icon", href: "/icon.svg", type: "image/svg+xml" }
+    %link{ rel: "stylesheet", href: "https://unpkg.com/klods-css/dist/klods.min.css" }
+    = javascript_importmap_tags
+  %body
+    = page({ sidebar: true }) do
+      = header do
+        = sidebar_toggle
+        = strong("Rails Server Template")
+        = push
+        = nav_list do
+          = nav_link({ href: "/", active: request.path == "/" }, "Home")
+      = sidebar do
+        - if content_for?(:sidebar)
+          = Klods::Core.raw(content_for(:sidebar))
+        - else
+          = toc do
+            = toc_item(toc_link({ href: "/" }, "Home"))
+      = content do
+        = Klods::Core.raw(yield)
+      = footer("Rails Server Template")

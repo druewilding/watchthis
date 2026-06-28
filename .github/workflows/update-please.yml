@@ -1,0 +1,77 @@
+name: Update please
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        type: choice
+        description: Gems to update
+        required: true
+        options:
+          - all
+          - conservative
+        default: conservative
+  schedule:
+    - cron: "0 0 20 * *"
+
+jobs:
+  update-please:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+
+      - name: Update gems (conservative — patch and minor only)
+        if: ${{ github.event.inputs.target != 'all' }}
+        run: bundle update --conservative
+
+      - name: Update gems (all — follow Gemfile constraints)
+        if: ${{ github.event.inputs.target == 'all' }}
+        run: bundle update
+
+      - id: format-summary
+        name: Format update summary
+        run: |
+          changes=$(git diff Gemfile.lock | grep '^[+-]' | grep -v '^[+-][+-][+-]' | grep -E '^\+\-\s+\S+ \(' | sed 's/^+- //' | head -20 || true)
+
+          if git diff --quiet Gemfile.lock; then
+            echo "pr_title=chore: No gem updates available" >> $GITHUB_OUTPUT
+            echo "pr_body=No gems were updated." >> $GITHUB_OUTPUT
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            updated=$(git diff Gemfile.lock | grep '^+' | grep -v '^+++' | grep -oP '(?<=\+ {4})\S+' | head -20 | tr '\n' ' ' | xargs)
+            count=$(git diff Gemfile.lock | grep '^+' | grep -v '^+++' | grep -oP '(?<=\+ {4})\S+' | wc -l | xargs)
+
+            if [ "$count" -eq 1 ]; then
+              PR_TITLE="chore: Update $updated"
+            else
+              PR_TITLE="chore: Update $count gems"
+            fi
+
+            PR_BODY=$(git diff Gemfile.lock | grep -E '^\+\s{4}[a-z]' | sed 's/^+    //' | head -30 | while read -r line; do echo "- $line"; done)
+
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "pr_title=$PR_TITLE" >> $GITHUB_OUTPUT
+            {
+              echo "pr_body<<EOF"
+              echo "$PR_BODY"
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create pull request
+        if: steps.format-summary.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.UPDATE_PLEASE_TOKEN }}
+          commit-message: ${{ steps.format-summary.outputs.pr_title }}
+          title: ${{ steps.format-summary.outputs.pr_title }}
+          body: ${{ steps.format-summary.outputs.pr_body }}
+          branch: update-please-${{ github.sha }}
+          labels: chore

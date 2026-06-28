@@ -1,0 +1,27 @@
+# Bundler
+/.bundle
+/vendor/bundle
+
+# Credentials and secrets
+/config/credentials.yml.enc
+/config/master.key
+
+# Rails runtime files
+/tmp/
+/log/*.log
+/storage/
+
+# Test artifacts
+/coverage/
+/spec/reports/
+
+# Assets
+/public/assets
+/public/packs
+/public/packs-test
+node_modules/
+.yarn-integrity
+yarn-error.log
+
+# macOS
+.DS_Store
