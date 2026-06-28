@@ -1,13 +1,6 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  user: one
-  name: MyString
-  is_default: false
-  is_private: false
-
-two:
-  user: two
-  name: MyString
-  is_default: false
-  is_private: false
+alice_inbox:
+  id: 63394057
+  user_id: 663665735
+  name: Inbox
+  is_default: true
+  is_private: true

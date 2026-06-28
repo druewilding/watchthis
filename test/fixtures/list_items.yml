@@ -1,0 +1,17 @@
+alice_youtube_item:
+  id: 1004460602
+  list_id: 63394057
+  media_id: 776850891
+  share_id: 400953557
+  status: pending
+  created_at: 2024-01-01 00:00:00
+  updated_at: 2024-01-01 00:00:00
+
+alice_article_item:
+  id: 202261779
+  list_id: 63394057
+  media_id: 1064578105
+  share_id: 631539594
+  status: pending
+  created_at: 2024-01-01 00:00:00
+  updated_at: 2024-01-01 00:00:00
