@@ -6,30 +6,23 @@ class WelcomePageTest < ActionDispatch::IntegrationTest
   test "renders the klods page shell" do
     assert_select "div.klods-page"
     assert_select "header.klods-header"
-    assert_select "aside.klods-sidebar"
     assert_select "main.klods-content"
     assert_select "footer.klods-footer"
   end
 
   test "page title is set" do
-    assert_select "title", text: /Rails Server Template/
-  end
-
-  test "sidebar has a table of contents" do
-    assert_select "ul.klods-toc"
-    assert_select "a[href='#welcome']"
-    assert_select "a[href='#getting-started']"
+    assert_select "title", text: /WatchThis/
   end
 
   test "welcome heading is present" do
-    assert_select "h1#welcome"
+    assert_select "h1", text: /WatchThis/
   end
 
-  test "klods docs button links out" do
-    assert_select "a.klods-button[href*='druewilding.com/klods']"
+  test "sign up button links to registration" do
+    assert_select "a.klods-button[href='/users/sign_up']"
   end
 
-  test "API status button is present" do
-    assert_select "a.klods-button[href='/api/v1/status']"
+  test "sign in button links to session" do
+    assert_select "a.klods-button[href='/users/sign_in']"
   end
 end
