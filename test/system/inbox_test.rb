@@ -12,7 +12,7 @@ class InboxSystemTest < ApplicationSystemTestCase
   test "adding a URL creates a share and shows the watch page" do
     visit dashboard_url
     fill_in "URL", with: "https://example.com/great-article"
-    click_on "Add to inbox"
+    stub_og_fetch(nil) { click_on "Add to inbox" }
 
     assert_selector "h1", text: "Watch"
     assert_selector "a[href='https://example.com/great-article']"

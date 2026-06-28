@@ -15,7 +15,9 @@ Rails.application.routes.draw do
   root "welcome#index"
 
   resources :media, only: [:create]
-  resources :shares, only: [:show]
+  resources :shares, only: [:show] do
+    get :metadata_status, on: :member
+  end
   resources :lists do
     resources :list_items, only: [:update, :destroy]
   end

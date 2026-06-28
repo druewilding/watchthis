@@ -10,6 +10,7 @@
     %link{ rel: "icon", href: "/icon.svg", type: "image/svg+xml" }
     %link{ rel: "stylesheet", href: "https://unpkg.com/klods-css/dist/klods.min.css" }
     = javascript_importmap_tags
+    = yield(:head)
   %body
     = page({ sidebar: user_signed_in? }) do
       = header do
@@ -32,9 +33,10 @@
             = toc do
               = toc_item(toc_link({ href: dashboard_path }, "Inbox"))
       = content do
-        - if notice.present?
-          %div{ role: "alert", class: "klods-alert klods-alert--success" }= notice
-        - if alert.present?
-          %div{ role: "alert", class: "klods-alert klods-alert--danger" }= alert
-        = yield
+        = stack({ gap: 6 }) do
+          - if notice.present?
+            %div{ role: "alert", class: "klods-alert klods-alert--success" }= notice
+          - if alert.present?
+            %div{ role: "alert", class: "klods-alert klods-alert--danger" }= alert
+          = yield
       = footer("WatchThis")

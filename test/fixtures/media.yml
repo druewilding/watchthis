@@ -7,6 +7,7 @@ youtube_video:
   title: Rick Astley - Never Gonna Give You Up
   thumbnail_url: https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg
   author: RickAstleyVEVO
+  metadata_fetched_at: 2024-01-01 00:00:00
   added_by_id: 663665735
   created_at: 2024-01-01 00:00:00
   updated_at: 2024-01-01 00:00:00
@@ -19,6 +20,7 @@ generic_article:
   title: An Interesting Article
   description: A very interesting article about something
   site_name: Example
+  metadata_fetched_at: 2024-01-01 00:00:00
   added_by_id: 663665735
   created_at: 2024-01-01 00:00:00
   updated_at: 2024-01-01 00:00:00

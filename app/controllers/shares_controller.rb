@@ -4,6 +4,10 @@ class SharesController < ApplicationController
   def show
   end
 
+  def metadata_status
+    render json: {fetched: @share.media.metadata_fetched?}
+  end
+
   private
 
   def set_share

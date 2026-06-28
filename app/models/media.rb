@@ -19,6 +19,27 @@ class Media < ApplicationRecord
     "https://www.youtube.com/embed/#{youtube_id}" if youtube?
   end
 
+  def metadata_fetched?
+    metadata_fetched_at.present?
+  end
+
+  def fetch_and_update_metadata!
+    metadata = if youtube?
+      self.class.send(:fetch_og_metadata, url).merge(self.class.send(:fetch_oembed, url))
+    else
+      self.class.send(:fetch_og_metadata, url)
+    end
+    update!(
+      title: metadata[:title],
+      thumbnail_url: metadata[:thumbnail_url],
+      author: metadata[:author],
+      description: metadata[:description],
+      site_name: metadata[:site_name],
+      published_at: metadata[:published_at],
+      metadata_fetched_at: Time.current
+    )
+  end
+
   class << self
     def find_or_create_from_url(url, added_by:)
       normalized = normalize(url)
@@ -30,25 +51,15 @@ class Media < ApplicationRecord
     def create_from_url(url, normalized, added_by:)
       youtube_id = extract_youtube_id(normalized)
       platform = youtube_id ? "youtube" : "generic"
-      metadata = if youtube_id
-        fetch_og_metadata(url).merge(fetch_oembed(url))
-      else
-        fetch_og_metadata(url)
-      end
-
-      create!(
+      media = create!(
         url: url,
         normalized_url: normalized,
         platform: platform,
         youtube_id: youtube_id,
-        title: metadata[:title],
-        thumbnail_url: metadata[:thumbnail_url],
-        author: metadata[:author],
-        description: metadata[:description],
-        site_name: metadata[:site_name],
-        published_at: metadata[:published_at],
         added_by: added_by
       )
+      FetchMediaMetadataJob.perform_later(media.id)
+      media
     end
 
     def normalize(url)
