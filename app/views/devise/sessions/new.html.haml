@@ -9,12 +9,8 @@
 
   = form_with(model: resource, as: resource_name, url: session_path(resource_name)) do |f|
     = stack({ gap: 4 }) do
-      %div.klods-field
-        = f.label :email, "Email", class: "klods-label"
-        = f.email_field :email, autofocus: true, autocomplete: "email", class: "klods-input"
-      %div.klods-field
-        = f.label :password, "Password", class: "klods-label"
-        = f.password_field :password, autocomplete: "current-password", class: "klods-input"
+      = f.klods_field :email, label: "Email", type: :email, autofocus: true, autocomplete: "email"
+      = f.klods_field :password, label: "Password", type: :password, autocomplete: "current-password"
       = cluster({ gap: 3 }) do
-        = f.submit "Sign in", class: "klods-button klods-button--primary"
+        = f.klods_submit "Sign in"
         = link_to "Forgot your password?", new_user_password_path, class: "klods-button klods-button--ghost"
