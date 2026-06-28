@@ -51,6 +51,6 @@ class FriendsSystemTest < ApplicationSystemTestCase
     fill_in "Email", with: user.email
     fill_in "Password", with: password
     click_button "Sign in"
-    assert_text "Sign out"
+    assert_current_path root_path
   end
 end
