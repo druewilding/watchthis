@@ -5,6 +5,10 @@
     = h1("WatchThis")
     = p("Share videos, articles, and anything else worth watching with the people you care about.")
     = p("They land in their inbox. They mark them watched when they're done. Simple.")
-  = cluster({ gap: 2 }) do
-    = button({ variant: "primary", href: new_user_registration_path }, "Create an account")
-    = button({ href: new_user_session_path }, "Sign in")
+  - if user_signed_in?
+    = cluster do
+      = button({ variant: "primary", href: root_path }, "Go to your inbox")
+  - else
+    = cluster({ gap: 2 }) do
+      = button({ variant: "primary", href: new_user_registration_path }, "Create an account")
+      = button({ href: new_user_session_path }, "Sign in")
