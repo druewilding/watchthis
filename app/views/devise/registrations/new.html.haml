@@ -1,0 +1,15 @@
+- content_for :title, "Sign up — WatchThis"
+
+= stack({ gap: 6, narrow: true }) do
+  = prose do
+    = h1("Create your account")
+    = p do
+      = "Already have an account? "
+      = link_to("Sign in", new_user_session_path)
+
+  = form_with(model: resource, as: resource_name, url: registration_path(resource_name)) do |f|
+    = stack({ gap: 4 }) do
+      = f.klods_field :email, label: "Email", type: :email, autofocus: true, autocomplete: "email"
+      = f.klods_field :password, label: "Password (6 characters minimum)", type: :password, autocomplete: "new-password"
+      = f.klods_field :password_confirmation, label: "Confirm password", type: :password, autocomplete: "new-password"
+      = f.klods_submit "Sign up"

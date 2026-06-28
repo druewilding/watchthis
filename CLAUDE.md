@@ -79,7 +79,7 @@ Per-view title and sidebar:
 - content_for :sidebar, toc([toc_item(toc_link({ href: "#inbox" }, "Inbox")), toc_item(toc_link({ href: "#share" }, "Share something"))])
 ```
 
-`Klods::Core.raw(str)` when wrapping already-rendered HTML (e.g. `yield`, `content_for`) to prevent double-escaping.
+For forms, use standard Rails helpers (`form_with`, `f.label`, `f.email_field`, etc.) — they produce html_safe output that HAML won't double-escape. No need for `Klods::Core.raw` anywhere.
 
 ## Commands
 

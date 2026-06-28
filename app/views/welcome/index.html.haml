@@ -1,20 +1,14 @@
-- content_for :title, "Rails Server Template"
-- content_for :sidebar, toc([toc_item(toc_link({ href: "#welcome" }, "Welcome")), toc_item(toc_link({ href: "#getting-started" }, "Getting started"))])
+- content_for :title, "WatchThis"
 
-= stack({ gap: 4 }) do
+= stack({ gap: 6 }) do
   = prose do
-    = h1({ id: "welcome" }, "Welcome!")
-    = p("This is the welcome page for the Rails Server Template.")
-  = prose do
-    = h2({ id: "getting-started" }, "Getting started")
-    = p do
-      = "Edit "
-      = inline_code("app/views/welcome/index.html.haml")
-      = " to change this page. Add routes in "
-      = inline_code("config/routes.rb")
-      = " and controllers in "
-      = inline_code("app/controllers/")
-      = "."
-  = cluster({ gap: 2 }) do
-    = button({ variant: "primary", href: "https://www.druewilding.com/klods/", target: "_blank" }, "klods docs")
-    = button({ href: "/api/v1/status" }, "API status")
+    = h1("WatchThis")
+    = p("Share videos, articles, and anything else worth watching with the people you care about.")
+    = p("They land in their inbox. They mark them watched when they're done. Simple.")
+  - if user_signed_in?
+    = cluster do
+      = button({ variant: "primary", href: root_path }, "Go to your inbox")
+  - else
+    = cluster({ gap: 2 }) do
+      = button({ variant: "primary", href: new_user_registration_path }, "Create an account")
+      = button({ href: new_user_session_path }, "Sign in")
