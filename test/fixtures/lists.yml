@@ -4,3 +4,10 @@ alice_inbox:
   name: Inbox
   is_default: true
   is_private: true
+
+bob_inbox:
+  id: 63394058
+  user_id: 200000000
+  name: Inbox
+  is_default: true
+  is_private: true

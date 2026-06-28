@@ -1,0 +1,5 @@
+alice_bob:
+  id: 300000001
+  user_id: 663665735
+  friend_id: 200000000
+  status: accepted

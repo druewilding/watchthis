@@ -26,6 +26,8 @@ class User < ApplicationRecord
     Friendship.pending.where(user: self).includes(:friend)
   end
 
+  before_save -> { self.display_name = display_name.presence }
+
   def name_or_email
     display_name.presence || email
   end
