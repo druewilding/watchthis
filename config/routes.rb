@@ -12,6 +12,7 @@ Rails.application.routes.draw do
 
   get "ping", to: "welcome#ping"
   get "dashboard", to: "dashboard#index"
+  resource :settings, only: [:show, :update]
   root "welcome#index"
 
   resources :media, only: [:create]

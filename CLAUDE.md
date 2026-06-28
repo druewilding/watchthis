@@ -15,14 +15,14 @@ A media sharing Rails app. Users share URLs (YouTube videos, articles, anything)
 
 ## Domain at a glance
 
-| Model | Key points |
-|-------|-----------|
-| `User` | Devise; gets a default Inbox `List` on registration |
-| `Media` | Write-once, deduplicated by `normalized_url`; YouTube metadata via oEmbed |
-| `Share` | `from_user → to_user` for a `Media`; status: `pending / watched / archived`; self-share is valid |
-| `List` | User-owned collection; one default Inbox per user |
-| `ListItem` | Ties `Media` to a `List`; optionally references the `Share` it came from |
-| `Friendship` | Phase 4 — symmetric join with `pending / accepted` status |
+| Model        | Key points                                                                                       |
+| ------------ | ------------------------------------------------------------------------------------------------ |
+| `User`       | Devise; gets a default Inbox `List` on registration; has optional `display_name`                 |
+| `Media`      | Write-once, deduplicated by `normalized_url`; YouTube metadata via oEmbed                        |
+| `Share`      | `from_user → to_user` for a `Media`; status: `pending / watched / archived`; self-share is valid |
+| `List`       | User-owned collection; one default Inbox per user                                                |
+| `ListItem`   | Ties `Media` to a `List`; optionally references the `Share` it came from                         |
+| `Friendship` | One row per pair; requester is `user_id`, recipient is `friend_id`; status: `pending / accepted` |
 
 ## Project layout
 
@@ -31,9 +31,11 @@ app/
   controllers/
     application_controller.rb        before_action :authenticate_user! (except welcome)
     welcome_controller.rb            public landing page + ping
-    dashboard_controller.rb          main authenticated view
-    media_controller.rb              POST /media — add a URL
-    shares_controller.rb             CRUD shares
+    dashboard_controller.rb          GET /dashboard — inbox view
+    media_controller.rb              POST /media — add a URL (self-save)
+    shares_controller.rb             GET/POST /shares — view or send to a friend
+    friendships_controller.rb        /friendships — send, accept, decline, remove
+    settings_controller.rb           GET/PATCH /settings — display name
     lists_controller.rb              CRUD lists
     list_items_controller.rb         PATCH/DELETE items within a list
     users/
@@ -41,13 +43,29 @@ app/
     api/v1/
       status_controller.rb           health check
   models/
-    user.rb  media.rb  share.rb  list.rb  list_item.rb
+    user.rb  media.rb  share.rb  list.rb  list_item.rb  friendship.rb
   views/
-    layouts/application.html.haml   page shell (from rails-server-template)
+    layouts/application.html.haml   page shell — header has logo + sign out only
     welcome/index.html.haml          public landing
     dashboard/index.html.haml        inbox + quick share
-    lists/show.html.haml             list items with filtering
-    shares/show.html.haml            single share detail
+    shares/show.html.haml            single share detail + send to friend
+    friendships/index.html.haml      friends list, pending requests, add by email
+    settings/show.html.haml          profile settings (display name)
+```
+
+## Layout conventions
+
+- **Header**: logo (left) + Sign out (right) only — no nav links
+- **Sidebar**: always renders global nav (Inbox / Friends / Settings), then per-page TOC below if `content_for :sidebar` is defined
+- **Sidebar on mobile**: collapsed, revealed via toggle — it IS the mobile nav, so keep global links in it
+- **Footer**: branding only
+
+Per-view sidebar content is appended below the global nav, not replacing it:
+
+```haml
+- content_for :sidebar do
+  = toc do
+    = toc_item(toc_link({ href: "#section" }, "Section"))
 ```
 
 ## Key behaviours to preserve
@@ -105,10 +123,6 @@ bin/standardrb --fix          # auto-fix
 bin/brakeman --no-pager       # security scan
 ```
 
-## What's next (Phase 1)
+## What's next
 
-1. Add `pg` and `devise` to Gemfile
-2. `rails generate devise:install && rails generate devise User`
-3. Override `Users::RegistrationsController` to create default Inbox
-4. Migrations for all tables (see ARCHITECTURE.md for schema)
-5. Seed with a test user and sample media
+See [ROADMAP.md](ROADMAP.md) for the full plan. Currently working on Phase 5 (bookmarklet, PWA share target, email invites).

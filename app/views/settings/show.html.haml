@@ -1,0 +1,15 @@
+- content_for :title, "Settings"
+- content_for :sidebar do
+  = toc do
+    = toc_item(toc_link({ href: "#profile" }, "Profile"))
+
+= section do
+  = stack({ gap: 4, narrow: true }) do
+    = prose do
+      = h1({ id: "profile" }, "Profile")
+      = p("Your display name is shown to friends when you share something with them.")
+    = form_with(model: current_user, url: settings_path, method: :patch) do |f|
+      = stack({ gap: 3 }) do
+        = f.klods_field :display_name, label: "Display name"
+        = f.klods_field :email, label: "Email", type: :email, disabled: true, help: "Email cannot be changed here."
+        = f.klods_submit "Save"
