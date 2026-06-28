@@ -7,4 +7,6 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   # share a database transaction with the test process. Disable parallelisation
   # here so all system tests run in a single process and see the same DB state.
   parallelize(workers: 1)
+
+  Capybara.default_max_wait_time = 5
 end
