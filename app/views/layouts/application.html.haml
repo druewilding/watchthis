@@ -15,7 +15,7 @@
       = header do
         - if user_signed_in?
           = sidebar_toggle
-        = strong("WatchThis")
+        = link({ href: root_path, plain: true }, strong("WatchThis"))
         = push
         = nav_list do
           - if user_signed_in?
