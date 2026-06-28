@@ -41,7 +41,7 @@
     = stack({ gap: 4, narrow: true }) do
       = prose do
         = h2("Send to a friend")
-      = form_with(url: shares_path, method: :post) do |f|
+      = form_with(model: Share.new, url: shares_path) do |f|
         = f.hidden_field :media_id, value: @share.media_id
         = stack({ gap: 3 }) do
           = f.klods_select :to_user_id, friends.map { |fr| [fr.name_or_email, fr.id] }, label: "Friend"
