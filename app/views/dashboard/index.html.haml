@@ -15,7 +15,7 @@
       = h1({ id: "inbox" }, "Inbox")
     - if @inbox_items.empty?
       = prose do
-        = p("Nothing in your inbox yet. Add something below!")
+        = p("Nothing in your inbox yet. Add something!")
     - else
       = stack({ gap: 4 }) do
         - @inbox_items.each do |item|
