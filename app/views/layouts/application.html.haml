@@ -30,7 +30,7 @@
             = content_for(:sidebar)
           - else
             = toc do
-              = toc_item(toc_link({ href: "/" }, "Home"))
+              = toc_item(toc_link({ href: dashboard_path }, "Inbox"))
       = content do
         - if notice.present?
           %div{ role: "alert", class: "klods-alert klods-alert--success" }= notice
