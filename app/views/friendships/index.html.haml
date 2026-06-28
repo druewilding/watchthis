@@ -1,0 +1,70 @@
+- content_for :title, "Friends"
+- content_for :sidebar do
+  = toc do
+    - if @incoming_requests.any?
+      = toc_item(toc_link({ href: "#requests" }, "Requests (#{@incoming_requests.count})"))
+    = toc_item(toc_link({ href: "#friends" }, "Friends"))
+    = toc_item(toc_link({ href: "#add" }, "Add a friend"))
+
+- if @incoming_requests.any?
+  = section do
+    = stack({ gap: 4 }) do
+      = prose do
+        = h1({ id: "requests" }, "Friend requests")
+      = stack({ gap: 3 }) do
+        - @incoming_requests.each do |friendship|
+          = card do
+            = cluster({ gap: 4, style: "align-items: center;" }) do
+              = fill do
+                = card_title(friendship.user.name_or_email)
+                - if friendship.user.display_name.present?
+                  = muted(friendship.user.email)
+              = cluster({ gap: 2 }) do
+                = form_with(url: friendship_path(friendship), method: :patch) do |f|
+                  = f.button("Accept", class: "klods-button klods-button--primary klods-button--sm")
+                = form_with(url: friendship_path(friendship), method: :delete) do |f|
+                  = f.button("Decline", class: "klods-button klods-button--sm")
+
+= section do
+  = stack({ gap: 4 }) do
+    = prose do
+      = h1({ id: "friends" }, "Friends")
+    - if @friends.any?
+      = stack({ gap: 3 }) do
+        - @friends.each do |friend|
+          = card do
+            = cluster({ gap: 4, style: "align-items: center;" }) do
+              = fill do
+                = card_title(friend.name_or_email)
+                - if friend.display_name.present?
+                  = muted(friend.email)
+              - friendship = Friendship.between(current_user, friend)
+              = form_with(url: friendship_path(friendship), method: :delete) do |f|
+                = f.button("Remove", class: "klods-button klods-button--sm")
+    - elsif @outgoing_requests.any?
+      = prose do
+        = p("No friends yet — but you have pending requests out.")
+    - else
+      = prose do
+        = p("No friends yet. Add someone below!")
+    - if @outgoing_requests.any?
+      = prose do
+        = h2("Pending requests sent")
+      = stack({ gap: 2 }) do
+        - @outgoing_requests.each do |friendship|
+          = card do
+            = cluster({ gap: 4, style: "align-items: center;" }) do
+              = fill do
+                = muted("Waiting for #{friendship.friend.name_or_email} to accept")
+              = form_with(url: friendship_path(friendship), method: :delete) do |f|
+                = f.button("Cancel", class: "klods-button klods-button--sm")
+
+= section do
+  = stack({ gap: 4, narrow: true }) do
+    = prose do
+      = h2({ id: "add" }, "Add a friend")
+      = p("Enter their email address to send a connection request.")
+    = form_with(url: friendships_path, method: :post) do |f|
+      = stack({ gap: 3 }) do
+        = f.klods_field :email, label: "Email address", type: :email, required: true, placeholder: "friend@example.com"
+        = f.klods_submit "Send request"
