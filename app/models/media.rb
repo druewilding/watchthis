@@ -25,9 +25,9 @@ class Media < ApplicationRecord
 
   def fetch_and_update_metadata!
     metadata = if youtube?
-      self.class.send(:fetch_og_metadata, url).merge(self.class.send(:fetch_oembed, url))
+      self.class.send(:fetch_og_metadata, normalized_url).merge(self.class.send(:fetch_oembed, normalized_url))
     else
-      self.class.send(:fetch_og_metadata, url)
+      self.class.send(:fetch_og_metadata, normalized_url)
     end
     update!(
       title: metadata[:title],
