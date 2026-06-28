@@ -22,7 +22,7 @@
               = p(@share.media.description)
             = p("This content can't be embedded here.")
             = p do
-              = a({ href: @share.media.url, target: "_blank" }, "View on #{@share.media.site_name.presence || "the original site"} →")
+              = a({ href: @share.media.normalized_url, target: "_blank" }, "View on #{@share.media.site_name.presence || "the original site"} →")
   - else
     = prose({ data: { controller: "pending", pending_url_value: metadata_status_share_url(@share) } }) do
       = muted("Fetching media details ...")
