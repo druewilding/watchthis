@@ -7,6 +7,8 @@ BCrypt::Engine.cost = BCrypt::Engine::MIN_COST
 
 module ActiveSupport
   class TestCase
+    include ActiveJob::TestHelper
+
     parallelize(workers: :number_of_processors)
     fixtures :all
     set_fixture_class media: Media

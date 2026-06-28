@@ -32,8 +32,10 @@ class InboxTest < ActionDispatch::IntegrationTest
 
   test "POST /media with YouTube URL fetches oEmbed metadata" do
     oembed = '{"title":"Cool Video","thumbnail_url":"https://i.ytimg.com/vi/abc/hq.jpg","author_name":"Cool Channel"}'
-    stub_oembed(oembed) do
-      post media_url, params: {url: "https://www.youtube.com/watch?v=newyt1234"}
+    stub_og_fetch(nil) do
+      stub_oembed(oembed) do
+        perform_enqueued_jobs { post media_url, params: {url: "https://www.youtube.com/watch?v=newyt1234"} }
+      end
     end
     assert_equal "Cool Video", Media.last.title
     assert_equal "Cool Channel", Media.last.author

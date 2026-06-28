@@ -45,9 +45,9 @@ class MediaTest < ActiveSupport::TestCase
     end
   end
 
-  test "find_or_create_from_url creates new record for unseen generic URL" do
-    stub_og_fetch(nil) do
-      assert_difference "Media.count" do
+  test "find_or_create_from_url creates new record for unseen URL and enqueues metadata job" do
+    assert_difference "Media.count" do
+      assert_enqueued_with(job: FetchMediaMetadataJob) do
         Media.find_or_create_from_url("https://example.com/brand-new-page", added_by: users(:alice))
       end
     end
@@ -56,16 +56,18 @@ class MediaTest < ActiveSupport::TestCase
   test "find_or_create_from_url parses article:published_time via name attribute" do
     html = '<meta name="article:published_time" content="2026-06-28T12:28:15.679Z">'
     stub_og_fetch(html) do
-      media = Media.find_or_create_from_url("https://example.com/named-article", added_by: users(:alice))
-      assert_equal Time.zone.parse("2026-06-28T12:28:15.679Z"), media.published_at
+      media = nil
+      perform_enqueued_jobs { media = Media.find_or_create_from_url("https://example.com/named-article", added_by: users(:alice)) }
+      assert_equal Time.zone.parse("2026-06-28T12:28:15.679Z"), media.reload.published_at
     end
   end
 
   test "find_or_create_from_url parses article:published_time for generic URL" do
     html = '<meta property="article:published_time" content="2026-06-28T10:00:00+00:00">'
     stub_og_fetch(html) do
-      media = Media.find_or_create_from_url("https://example.com/dated-article", added_by: users(:alice))
-      assert_equal Time.zone.parse("2026-06-28T10:00:00+00:00"), media.published_at
+      media = nil
+      perform_enqueued_jobs { media = Media.find_or_create_from_url("https://example.com/dated-article", added_by: users(:alice)) }
+      assert_equal Time.zone.parse("2026-06-28T10:00:00+00:00"), media.reload.published_at
     end
   end
 
@@ -74,8 +76,9 @@ class MediaTest < ActiveSupport::TestCase
     html = '<meta itemprop="datePublished" content="2026-01-15">'
     stub_og_fetch(html) do
       stub_oembed(oembed) do
-        media = Media.find_or_create_from_url("https://www.youtube.com/watch?v=newvid789", added_by: users(:alice))
-        assert_equal Time.zone.parse("2026-01-15"), media.published_at
+        media = nil
+        perform_enqueued_jobs { media = Media.find_or_create_from_url("https://www.youtube.com/watch?v=newvid789", added_by: users(:alice)) }
+        assert_equal Time.zone.parse("2026-01-15"), media.reload.published_at
       end
     end
   end
@@ -90,8 +93,9 @@ class MediaTest < ActiveSupport::TestCase
       </head></html>
     HTML
     stub_og_fetch(html) do
-      media = Media.find_or_create_from_url("https://www.dr.dk/nyheder/vejret/varme-og-hedeboelge-over-europa", added_by: users(:alice))
-      assert_equal "Varme og hedebølge over Europa", media.title
+      media = nil
+      perform_enqueued_jobs { media = Media.find_or_create_from_url("https://www.dr.dk/nyheder/vejret/varme-og-hedeboelge-over-europa", added_by: users(:alice)) }
+      assert_equal "Varme og hedebølge over Europa", media.reload.title
       assert_equal "Her er vejrudsigten for den kommende uge.", media.description
       assert_equal "https://www.dr.dk/image.jpg", media.thumbnail_url
       assert_equal "DR", media.site_name
@@ -103,8 +107,9 @@ class MediaTest < ActiveSupport::TestCase
     oembed = '{"title":"Test Video","thumbnail_url":"https://i.ytimg.com/vi/xyz/hq.jpg","author_name":"Test Channel"}'
     stub_og_fetch(nil) do
       stub_oembed(oembed) do
-        media = Media.find_or_create_from_url("https://www.youtube.com/watch?v=newvid123", added_by: users(:alice))
-        assert_equal "Test Video", media.title
+        media = nil
+        perform_enqueued_jobs { media = Media.find_or_create_from_url("https://www.youtube.com/watch?v=newvid123", added_by: users(:alice)) }
+        assert_equal "Test Video", media.reload.title
         assert_equal "Test Channel", media.author
         assert_equal "youtube", media.platform
       end
@@ -116,8 +121,9 @@ class MediaTest < ActiveSupport::TestCase
     html = '<meta property="og:description" content="A great video about things">'
     stub_og_fetch(html) do
       stub_oembed(oembed) do
-        media = Media.find_or_create_from_url("https://www.youtube.com/watch?v=newvid456", added_by: users(:alice))
-        assert_equal "Test Video", media.title
+        media = nil
+        perform_enqueued_jobs { media = Media.find_or_create_from_url("https://www.youtube.com/watch?v=newvid456", added_by: users(:alice)) }
+        assert_equal "Test Video", media.reload.title
         assert_equal "Test Channel", media.author
         assert_equal "A great video about things", media.description
       end
