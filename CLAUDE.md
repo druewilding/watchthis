@@ -10,7 +10,7 @@ A media sharing Rails app. Users share URLs (YouTube videos, articles, anything)
 - **klods-ruby** — all builders available in every HAML view via Railtie; no imports needed
 - **haml-rails** — all views are `.html.haml`
 - **Devise** — email/password auth; no JWT
-- **Turbo + Stimulus** — interactive bits
+- **Turbo + Stimulus** — interactive bits; always use `status: :see_other` on redirects from non-GET actions (PATCH, DELETE, POST) so Turbo 8 follows them correctly
 - **StandardRB** — style linter
 
 ## Domain at a glance

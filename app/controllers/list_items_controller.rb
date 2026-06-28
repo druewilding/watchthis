@@ -6,12 +6,12 @@ class ListItemsController < ApplicationController
       @list_item.share&.mark_watched!
       @list_item.update!(status: "watched", watched_at: Time.current) unless @list_item.share
     end
-    redirect_to dashboard_path, notice: "Marked as watched."
+    redirect_to dashboard_path, status: :see_other, notice: "Marked as watched."
   end
 
   def destroy
     @list_item.destroy!
-    redirect_to dashboard_path, notice: "Removed from list."
+    redirect_to dashboard_path, status: :see_other, notice: "Removed from list."
   end
 
   private
