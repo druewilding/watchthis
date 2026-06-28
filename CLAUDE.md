@@ -1,117 +1,102 @@
-# rails-server-template — CLAUDE.md
+# WatchThis — CLAUDE.md
 
 ## What this is
 
-A minimal Rails 7.2 starter with [klods-ruby](https://github.com/druewilding/klods-ruby) and HAML wired up. No database by default. The Rails equivalent of `express-server-template`.
+A media sharing Rails app. Users share URLs (YouTube videos, articles, anything) with friends. Recipients get them in an Inbox list and mark them watched. See [ARCHITECTURE.md](ARCHITECTURE.md) for the full domain model and build plan.
 
 ## Stack
 
-- **Rails 8.1** — no database configured by default
-- **klods-ruby** — all builders available in every view via Railtie (no imports needed)
-- **haml-rails** — HAML template engine; all views are `.html.haml`
-- **klods CSS** — loaded from CDN in the layout
-- **klods-js** — loaded via importmap from CDN for interactive components
-- **StandardRB** — zero-config Ruby style linter
+- **Rails 8.1** + PostgreSQL
+- **klods-ruby** — all builders available in every HAML view via Railtie; no imports needed
+- **haml-rails** — all views are `.html.haml`
+- **Devise** — email/password auth; no JWT
+- **Turbo + Stimulus** — interactive bits
+- **StandardRB** — style linter
+
+## Domain at a glance
+
+| Model | Key points |
+|-------|-----------|
+| `User` | Devise; gets a default Inbox `List` on registration |
+| `Media` | Write-once, deduplicated by `normalized_url`; YouTube metadata via oEmbed |
+| `Share` | `from_user → to_user` for a `Media`; status: `pending / watched / archived`; self-share is valid |
+| `List` | User-owned collection; one default Inbox per user |
+| `ListItem` | Ties `Media` to a `List`; optionally references the `Share` it came from |
+| `Friendship` | Phase 4 — symmetric join with `pending / accepted` status |
 
 ## Project layout
 
 ```
 app/
   controllers/
-    application_controller.rb          base controller
-    welcome_controller.rb              root (/) and ping routes
-    api/v1/status_controller.rb        JSON health endpoint
+    application_controller.rb        before_action :authenticate_user! (except welcome)
+    welcome_controller.rb            public landing page + ping
+    dashboard_controller.rb          main authenticated view
+    media_controller.rb              POST /media — add a URL
+    shares_controller.rb             CRUD shares
+    lists_controller.rb              CRUD lists
+    list_items_controller.rb         PATCH/DELETE items within a list
+    users/
+      registrations_controller.rb    override Devise to create default Inbox on signup
+    api/v1/
+      status_controller.rb           health check
+  models/
+    user.rb  media.rb  share.rb  list.rb  list_item.rb
   views/
-    layouts/application.html.haml      page shell (header, sidebar, content, footer)
-    welcome/index.html.haml            welcome page — replace with your own views
-config/
-  routes.rb                            all routes
-  importmap.rb                         klods-js pinned from CDN
+    layouts/application.html.haml   page shell (from rails-server-template)
+    welcome/index.html.haml          public landing
+    dashboard/index.html.haml        inbox + quick share
+    lists/show.html.haml             list items with filtering
+    shares/show.html.haml            single share detail
 ```
 
-## Routes
+## Key behaviours to preserve
 
-| Route                | Handler                          | Purpose                     |
-| -------------------- | -------------------------------- | --------------------------- |
-| `GET /`              | `WelcomeController#index`        | welcome page                |
-| `GET /ping`          | `WelcomeController#ping`         | plain text health check     |
-| `GET /api/v1/status` | `Api::V1::StatusController#show` | JSON `{status, message}`    |
-| `GET /up`            | `rails/health#show`              | Rails built-in health check |
+- **Media deduplication**: always look up by `normalized_url` before creating; one `Media` row per unique piece of content regardless of how many people share it
+- **Inbox auto-creation**: `Users::RegistrationsController` calls `super`, then `current_user.lists.create!(name: "Inbox", is_default: true)` — always happens on signup, never on login
+- **Incoming share → ListItem**: when a `Share` is created, auto-create a `ListItem` in the recipient's Inbox pointing at the same `Media`
+- **Self-share is valid**: `from_user_id == to_user_id` is a "save to my list" action, not an error
 
 ## HAML + klods patterns
 
-All klods builders are available in every view — no include needed.
+Use `do` blocks for nesting — the indentation mirrors the HTML:
 
-**Block syntax** (preferred for nesting):
 ```haml
-= stack({ gap: 4 }) do
+= stack({ gap: 6 }) do
   = prose do
-    = h1({ id: "welcome" }, "Welcome!")
-    = p("Some text.")
-  = cluster({ gap: 2 }) do
-    = button({ variant: "primary" }, "Save")
-    = button("Cancel")
+    = h1({ id: "inbox" }, "Inbox")
+    = p("#{@inbox_items.count} items waiting")
+  = @inbox_items.each do |item|
+    = card do
+      = card_title(item.media.title)
+      = card_body(item.media.author)
 ```
 
-**Variable assignment** (for one-liners or reuse):
-```haml
-- actions = cluster({ gap: 2 }, [button({ variant: "primary" }, "Save"), button("Cancel")])
-= stack({ gap: 4 }) do
-  = prose do
-    = h1("Title")
-  = actions
-```
-
-**One rule**: `=` output lines must be a single Ruby expression. Multi-line array literals break under HAML 6 because it inserts a semicolon after `[`. Use `do` blocks or `- var =` instead.
-
-**Per-view title and sidebar**:
-```haml
-- content_for :title, "My Page"
-- content_for :sidebar, toc([toc_item(toc_link({ href: "#section" }, "Section"))])
-```
-If `:sidebar` isn't set, the layout falls back to a default ToC with a Home link.
-
-## Layout structure
-
-`application.html.haml` builds the page shell with klods blocks:
+Per-view title and sidebar:
 
 ```haml
-= page({ sidebar: true }) do
-  = header do ...
-  = sidebar do
-    - if content_for?(:sidebar)
-      = Klods::Core.raw(content_for(:sidebar))
-    - else
-      = toc do ...
-  = content do
-    = Klods::Core.raw(yield)
-  = footer("Rails Server Template")
+- content_for :title, "Dashboard"
+- content_for :sidebar, toc([toc_item(toc_link({ href: "#inbox" }, "Inbox")), toc_item(toc_link({ href: "#share" }, "Share something"))])
 ```
 
-`Klods::Core.raw(...)` is needed when wrapping already-rendered HTML (from `yield` or `content_for`) so it isn't double-escaped.
+`Klods::Core.raw(str)` when wrapping already-rendered HTML (e.g. `yield`, `content_for`) to prevent double-escaping.
 
 ## Commands
 
 ```sh
-bin/rails server              # start dev server (http://localhost:3000)
-bin/rails routes              # list all routes
-bundle exec standardrb        # check style
-bundle exec standardrb --fix  # auto-fix style
-bundle exec brakeman          # security scan
+bin/rails server              # start dev server
+bin/rails db:create db:migrate db:seed
+bin/rails test                # controller + integration tests
+bin/rails test:system         # system tests (requires Chrome)
+bin/standardrb                # check style
+bin/standardrb --fix          # auto-fix
+bin/brakeman --no-pager       # security scan
 ```
 
-## Adding a database
+## What's next (Phase 1)
 
-```sh
-bundle add pg  # or sqlite3, mysql2
-# configure config/database.yml
-bin/rails generate model ...
-```
-
-## klods-ruby version note
-
-The Gemfile points at the published gem (`gem "klods-ruby"`). The block/`do` syntax requires klods-ruby ≥ 1.1.0. If that version isn't yet published, switch to the local path temporarily:
-
-```ruby
-gem "klods-ruby", path: "../klods-ruby"
-```
+1. Add `pg` and `devise` to Gemfile
+2. `rails generate devise:install && rails generate devise User`
+3. Override `Users::RegistrationsController` to create default Inbox
+4. Migrations for all tables (see ARCHITECTURE.md for schema)
+5. Seed with a test user and sample media
