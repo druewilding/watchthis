@@ -14,7 +14,7 @@ class User < ApplicationRecord
   end
 
   def friends
-    friend_ids = Friendship.accepted.involving(self).map { |f| f.user_id == id ? f.friend_id : f.user_id }
+    friend_ids = Friendship.accepted.involving(self).map { |f| (f.user_id == id) ? f.friend_id : f.user_id }
     User.where(id: friend_ids)
   end
 
