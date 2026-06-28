@@ -2,3 +2,8 @@ alice:
   id: 663665735
   email: alice@example.com
   encrypted_password: <%= BCrypt::Password.create("password") %>
+
+bob:
+  id: 200000000
+  email: bob@example.com
+  encrypted_password: <%= BCrypt::Password.create("password") %>
