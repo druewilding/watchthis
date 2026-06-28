@@ -5,15 +5,22 @@
     = h1("Create your account")
     = p do
       = "Already have an account? "
-      = Klods::Core.raw(link_to("Sign in", new_user_session_path))
+      = link_to("Sign in", new_user_session_path)
 
   = form_with(model: resource, as: resource_name, url: registration_path(resource_name)) do |f|
     = stack({ gap: 4 }) do
       - if resource.errors.any?
-        = prose do
-          = ul(resource.errors.full_messages.map { |msg| li(msg) })
+        %ul
+          - resource.errors.full_messages.each do |msg|
+            %li= msg
 
-      = field(Klods::Core.raw(f.label(:email, "Email")), Klods::Core.raw(f.email_field(:email, autofocus: true, autocomplete: "email")))
-      = field(Klods::Core.raw(f.label(:password, "Password (6 characters minimum)")), Klods::Core.raw(f.password_field(:password, autocomplete: "new-password")))
-      = field(Klods::Core.raw(f.label(:password_confirmation, "Confirm password")), Klods::Core.raw(f.password_field(:password_confirmation, autocomplete: "new-password")))
-      = Klods::Core.raw(f.submit("Sign up", class: "klods-button klods-button--primary"))
+      %div
+        = f.label :email, "Email"
+        = f.email_field :email, autofocus: true, autocomplete: "email"
+      %div
+        = f.label :password, "Password (6 characters minimum)"
+        = f.password_field :password, autocomplete: "new-password"
+      %div
+        = f.label :password_confirmation, "Confirm password"
+        = f.password_field :password_confirmation, autocomplete: "new-password"
+      = f.submit "Sign up", class: "klods-button klods-button--primary"

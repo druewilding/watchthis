@@ -27,14 +27,14 @@
       - if user_signed_in?
         = sidebar do
           - if content_for?(:sidebar)
-            = Klods::Core.raw(content_for(:sidebar))
+            = content_for(:sidebar)
           - else
             = toc do
               = toc_item(toc_link({ href: "/" }, "Home"))
       = content do
         - if notice.present?
-          = Klods::Core.raw(tag.p(notice, class: "klods-notice"))
+          %p.notice= notice
         - if alert.present?
-          = Klods::Core.raw(tag.p(alert, class: "klods-alert"))
-        = Klods::Core.raw(yield)
+          %p.alert= alert
+        = yield
       = footer("WatchThis")
