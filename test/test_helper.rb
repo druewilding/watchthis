@@ -18,6 +18,15 @@ module ActiveSupport
     ensure
       Net::HTTP.define_singleton_method(:get, original)
     end
+
+    def stub_og_fetch(html)
+      Media.singleton_class.send(:alias_method, :__original_fetch_html, :fetch_html)
+      Media.define_singleton_method(:fetch_html) { |*| html }
+      yield
+    ensure
+      Media.singleton_class.send(:alias_method, :fetch_html, :__original_fetch_html)
+      Media.singleton_class.send(:undef_method, :__original_fetch_html)
+    end
   end
 end
 

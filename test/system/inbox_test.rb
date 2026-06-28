@@ -15,7 +15,7 @@ class InboxSystemTest < ApplicationSystemTestCase
     click_on "Add to inbox"
 
     assert_selector "h1", text: "Watch"
-    assert_selector "a", text: "Open link"
+    assert_selector "a[href='https://example.com/great-article']"
     assert_selector "button", text: "Mark watched"
   end
 

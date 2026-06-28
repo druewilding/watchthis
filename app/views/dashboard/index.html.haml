@@ -20,8 +20,7 @@
                 %img{ src: item.media.thumbnail_url, alt: "", style: "width: 120px; border-radius: 4px; flex-shrink: 0;" }
               = stack({ gap: 1 }) do
                 = card_title(a({href: share_path(item.share)}, item.media.title || item.media.url))
-                - if item.media.author.present?
-                  = muted(item.media.author)
+                = muted(item.media.author.presence || item.media.site_name.presence || URI.parse(item.media.url).host)
                 = cluster({ gap: 2 }) do
                   - if item.status != "watched"
                     = button({ variant: "primary", href: share_path(item.share), size: "sm" }, "Watch")
