@@ -10,7 +10,7 @@ A media sharing Rails app. Users share URLs (YouTube videos, articles, anything)
 - **klods-ruby** — all builders available in every HAML view via Railtie; no imports needed
 - **haml-rails** — all views are `.html.haml`
 - **Devise** — email/password auth; no JWT
-- **Turbo + Stimulus** — interactive bits
+- **Turbo + Stimulus** — interactive bits; always use `status: :see_other` on redirects from non-GET actions (PATCH, DELETE, POST) so Turbo 8 follows them correctly
 - **StandardRB** — style linter
 
 ## Domain at a glance
@@ -79,7 +79,19 @@ Per-view title and sidebar:
 - content_for :sidebar, toc([toc_item(toc_link({ href: "#inbox" }, "Inbox")), toc_item(toc_link({ href: "#share" }, "Share something"))])
 ```
 
-For forms, use standard Rails helpers (`form_with`, `f.label`, `f.email_field`, etc.) — they produce html_safe output that HAML won't double-escape. No need for `Klods::Core.raw` anywhere.
+For forms, always use the klods form builder methods — the Railtie sets `Klods::FormBuilder` as the default, so no `builder:` option is needed on `form_with`:
+
+```haml
+= form_with(url: some_path, method: :post) do |f|
+  = stack({ gap: 3 }) do
+    = f.klods_field :email, label: "Email", type: :email, required: true
+    = f.klods_field :name, label: "Name", help: "Your display name"
+    = f.klods_textarea :bio, label: "Bio"
+    = f.klods_select :role, [["Admin", "admin"], ["User", "user"]], label: "Role"
+    = f.klods_submit "Save"
+```
+
+`klods_field` renders label + styled input + aria wiring + inline error message as a unit. `klods_submit` renders a primary-styled button. No need to use `f.label`, `f.text_field`, or `f.submit` separately.
 
 ## Commands
 

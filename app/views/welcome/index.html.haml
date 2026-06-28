@@ -7,7 +7,7 @@
     = p("They land in their inbox. They mark them watched when they're done. Simple.")
   - if user_signed_in?
     = cluster do
-      = button({ variant: "primary", href: root_path }, "Go to your inbox")
+      = button({ variant: "primary", href: dashboard_path }, "Go to your inbox")
   - else
     = cluster({ gap: 2 }) do
       = button({ variant: "primary", href: new_user_registration_path }, "Create an account")

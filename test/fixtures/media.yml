@@ -1,0 +1,22 @@
+youtube_video:
+  id: 776850891
+  url: https://www.youtube.com/watch?v=dQw4w9WgXcQ
+  normalized_url: https://www.youtube.com/watch?v=dQw4w9WgXcQ
+  platform: youtube
+  youtube_id: dQw4w9WgXcQ
+  title: Rick Astley - Never Gonna Give You Up
+  thumbnail_url: https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg
+  author: RickAstleyVEVO
+  added_by_id: 663665735
+  created_at: 2024-01-01 00:00:00
+  updated_at: 2024-01-01 00:00:00
+
+generic_article:
+  id: 1064578105
+  url: https://example.com/article
+  normalized_url: https://example.com/article
+  platform: generic
+  title: An Interesting Article
+  added_by_id: 663665735
+  created_at: 2024-01-01 00:00:00
+  updated_at: 2024-01-01 00:00:00
