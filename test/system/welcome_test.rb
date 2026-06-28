@@ -1,36 +1,41 @@
 require "application_system_test_case"
 
 class WelcomeTest < ApplicationSystemTestCase
-  test "welcome page renders the full klods layout" do
+  test "welcome page renders the klods layout without a sidebar" do
     visit root_url
 
     assert_selector "div.klods-page"
     assert_selector "header.klods-header"
-    # sidebar may be CSS-hidden on narrow viewports; check it exists in the DOM
-    assert_selector "aside.klods-sidebar", visible: :all
+    assert_no_selector "aside.klods-sidebar"
     assert_selector "main.klods-content"
     assert_selector "footer.klods-footer"
   end
 
   test "page has the correct title" do
     visit root_url
-    assert_title "Rails Server Template"
+    assert_title "WatchThis"
   end
 
   test "welcome heading is visible" do
     visit root_url
-    assert_text "Welcome!"
+    assert_text "WatchThis"
   end
 
-  test "sidebar toggle button is present in the DOM" do
+  test "nav shows sign in and sign up links" do
     visit root_url
-    # toggle is CSS-hidden on wide viewports; check it exists in the DOM
-    assert_selector "button.klods-sidebar-toggle", visible: :all
+    assert_selector "a[href='/users/sign_in']", text: "Sign in"
+    assert_selector "a[href='/users/sign_up']", text: "Sign up"
   end
 
-  test "API status button navigates to the status endpoint" do
+  test "create an account button navigates to sign up" do
     visit root_url
-    click_on "API status"
-    assert_current_path "/api/v1/status"
+    click_on "Create an account"
+    assert_current_path "/users/sign_up"
+  end
+
+  test "sign in button navigates to sign in page" do
+    visit root_url
+    find(".klods-button", text: "Sign in").click
+    assert_current_path "/users/sign_in"
   end
 end
