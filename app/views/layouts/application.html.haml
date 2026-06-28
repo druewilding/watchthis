@@ -33,8 +33,8 @@
               = toc_item(toc_link({ href: "/" }, "Home"))
       = content do
         - if notice.present?
-          %p.notice= notice
+          %div{ role: "alert", class: "klods-alert klods-alert--success" }= notice
         - if alert.present?
-          %p.alert= alert
+          %div{ role: "alert", class: "klods-alert klods-alert--danger" }= alert
         = yield
       = footer("WatchThis")
