@@ -1,6 +1,26 @@
 require "test_helper"
 
 class MediaTest < ActiveSupport::TestCase
+  test "normalises URL with no scheme by prepending https://" do
+    assert_equal "https://example.com/article",
+      Media.send(:normalize, "example.com/article")
+  end
+
+  test "normalises YouTube URL with no scheme" do
+    assert_equal "https://www.youtube.com/watch?v=abc123",
+      Media.send(:normalize, "youtube.com/watch?v=abc123")
+  end
+
+  test "normalises youtu.be short URL with no scheme" do
+    assert_equal "https://www.youtube.com/watch?v=abc123",
+      Media.send(:normalize, "youtu.be/abc123")
+  end
+
+  test "leaves http:// URLs alone" do
+    assert_equal "http://example.com/article",
+      Media.send(:normalize, "http://example.com/article")
+  end
+
   test "normalises youtube.com watch URL by stripping extra params" do
     assert_equal "https://www.youtube.com/watch?v=abc123",
       Media.send(:normalize, "https://www.youtube.com/watch?v=abc123&feature=share")

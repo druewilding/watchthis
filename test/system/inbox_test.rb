@@ -6,7 +6,7 @@ class InboxSystemTest < ApplicationSystemTestCase
   test "dashboard shows inbox heading and URL form" do
     visit dashboard_url
     assert_selector "h1", text: "Inbox"
-    assert_selector "input[type='url']"
+    assert_selector "input[inputmode='url']"
   end
 
   test "adding a URL creates a share and shows the watch page" do
@@ -39,6 +39,6 @@ class InboxSystemTest < ApplicationSystemTestCase
     fill_in "Email", with: user.email
     fill_in "Password", with: password
     click_button "Sign in"
-    assert_text "Sign out"
+    assert_current_path root_path
   end
 end

@@ -63,7 +63,9 @@ class Media < ApplicationRecord
     end
 
     def normalize(url)
-      uri = URI.parse(url.strip)
+      url = url.strip
+      url = "https://#{url}" unless url.match?(/\Ahttps?:\/\//i)
+      uri = URI.parse(url)
       uri.scheme = uri.scheme&.downcase
       uri.host = uri.host&.downcase
 
