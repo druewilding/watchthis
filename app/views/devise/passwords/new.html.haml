@@ -1,0 +1,20 @@
+- content_for :title, "Forgot your password? — WatchThis"
+
+= stack({ gap: 6 }) do
+  = prose do
+    = h1("Forgot your password?")
+    = p("Enter your email address and we'll send you a link to reset it.")
+
+  = form_with(model: resource, as: resource_name, url: password_path(resource_name)) do |f|
+    = stack({ gap: 4 }) do
+      - if resource.errors.any?
+        %ul
+          - resource.errors.full_messages.each do |msg|
+            %li= msg
+
+      %div.klods-field
+        = f.label :email, "Email", class: "klods-label"
+        = f.email_field :email, autofocus: true, autocomplete: "email", class: "klods-input"
+      = cluster({ gap: 3 }) do
+        = f.submit "Send reset instructions", class: "klods-button klods-button--primary"
+        = link_to "Back to sign in", new_user_session_path, class: "klods-button klods-button--ghost"

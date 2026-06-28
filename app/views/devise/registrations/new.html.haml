@@ -14,13 +14,13 @@
           - resource.errors.full_messages.each do |msg|
             %li= msg
 
-      %div
-        = f.label :email, "Email"
-        = f.email_field :email, autofocus: true, autocomplete: "email"
-      %div
-        = f.label :password, "Password (6 characters minimum)"
-        = f.password_field :password, autocomplete: "new-password"
-      %div
-        = f.label :password_confirmation, "Confirm password"
-        = f.password_field :password_confirmation, autocomplete: "new-password"
+      %div.klods-field
+        = f.label :email, "Email", class: "klods-label"
+        = f.email_field :email, autofocus: true, autocomplete: "email", class: "klods-input"
+      %div.klods-field
+        = f.label :password, "Password (6 characters minimum)", class: "klods-label"
+        = f.password_field :password, autocomplete: "new-password", class: "klods-input"
+      %div.klods-field
+        = f.label :password_confirmation, "Confirm password", class: "klods-label"
+        = f.password_field :password_confirmation, autocomplete: "new-password", class: "klods-input"
       = f.submit "Sign up", class: "klods-button klods-button--primary"
