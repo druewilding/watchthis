@@ -1,0 +1,16 @@
+- content_for :title, "Sign in — WatchThis"
+
+= stack({ gap: 6 }) do
+  = prose do
+    = h1("Sign in")
+    = p do
+      = "New to WatchThis? "
+      = Klods::Core.raw(link_to("Create an account", new_user_registration_path))
+
+  = form_with(model: resource, as: resource_name, url: session_path(resource_name)) do |f|
+    = stack({ gap: 4 }) do
+      = field(Klods::Core.raw(f.label(:email, "Email")), Klods::Core.raw(f.email_field(:email, autofocus: true, autocomplete: "email")))
+      = field(Klods::Core.raw(f.label(:password, "Password")), Klods::Core.raw(f.password_field(:password, autocomplete: "current-password")))
+      = cluster({ gap: 3 }) do
+        = Klods::Core.raw(f.submit("Sign in", class: "klods-button klods-button--primary"))
+        = Klods::Core.raw(link_to("Forgot your password?", new_user_password_path))
