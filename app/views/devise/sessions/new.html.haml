@@ -12,6 +12,7 @@
       = stack({ gap: 4 }) do
         = f.klods_field :email, label: "Email", type: :email, autofocus: true, autocomplete: "email"
         = f.klods_field :password, label: "Password", type: :password, autocomplete: "current-password"
+        = f.hidden_field :remember_me, value: "1"
         = cluster({ gap: 3 }) do
           = f.klods_submit "Sign in"
           = link_to "Forgot your password?", new_user_password_path, class: "klods-button klods-button--ghost"

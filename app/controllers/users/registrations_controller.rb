@@ -6,4 +6,11 @@ class Users::RegistrationsController < Devise::RegistrationsController
       end
     end
   end
+
+  private
+
+  def sign_up(resource_name, resource)
+    super
+    remember_me(resource)
+  end
 end
