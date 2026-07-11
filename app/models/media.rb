@@ -28,8 +28,11 @@ class Media < ApplicationRecord
     when "youtube"
       "https://www.youtube.com/embed/#{youtube_id}"
     when "instagram"
-      m = normalized_url.match(%r{instagram\.com/(?:p|reel|tv)/([^/?]+)})
-      "https://www.instagram.com/p/#{m[1]}/embed/" if m
+      m = normalized_url.match(%r{instagram\.com/(p|reels?|tv)/([^/?]+)})
+      if m
+        type = m[1] == "reels" ? "reel" : m[1]
+        "https://www.instagram.com/#{type}/#{m[2]}/embed/"
+      end
     when "tiktok"
       m = normalized_url.match(%r{tiktok\.com/@[^/]+/video/(\d+)})
       "https://www.tiktok.com/embed/v2/#{m[1]}" if m

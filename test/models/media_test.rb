@@ -98,10 +98,16 @@ class MediaTest < ActiveSupport::TestCase
     assert_equal "https://www.instagram.com/p/ABC123/embed/", media(:instagram_post).embed_url
   end
 
-  test "embed_url returns Instagram embed URL for a reel" do
+  test "embed_url returns Instagram reel embed URL for a reel" do
     reel = media(:instagram_post).dup
     reel.normalized_url = "https://www.instagram.com/reel/DEF456/"
-    assert_equal "https://www.instagram.com/p/DEF456/embed/", reel.embed_url
+    assert_equal "https://www.instagram.com/reel/DEF456/embed/", reel.embed_url
+  end
+
+  test "embed_url returns Instagram reel embed URL for a reels (plural) URL" do
+    reel = media(:instagram_post).dup
+    reel.normalized_url = "https://www.instagram.com/reels/Daf55orR4Bj/"
+    assert_equal "https://www.instagram.com/reel/Daf55orR4Bj/embed/", reel.embed_url
   end
 
   test "embed_url returns TikTok embed URL" do
