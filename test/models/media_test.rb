@@ -51,6 +51,17 @@ class MediaTest < ActiveSupport::TestCase
       Media.send(:normalize, "https://www.instagram.com/reel/DEF456/?igsh=xyz")
   end
 
+  test "normalises Instagram reels (plural) URL to reel (singular)" do
+    assert_equal "https://www.instagram.com/reel/Danxm_qMgGZ/",
+      Media.send(:normalize, "https://www.instagram.com/reels/Danxm_qMgGZ/")
+  end
+
+  test "normalises Instagram reels URL with tracking params to same as reel URL" do
+    assert_equal \
+      Media.send(:normalize, "https://www.instagram.com/reels/Danxm_qMgGZ/"),
+      Media.send(:normalize, "https://www.instagram.com/reel/Danxm_qMgGZ/?utm_source=ig_web_copy_link&igsh=NTc4MTIwNjQ2YQ==")
+  end
+
   test "normalises instagr.am short domain to instagram.com" do
     assert_equal "https://www.instagram.com/p/ABC123/",
       Media.send(:normalize, "https://instagr.am/p/ABC123/")
@@ -106,7 +117,7 @@ class MediaTest < ActiveSupport::TestCase
 
   test "embed_url returns Instagram reel embed URL for a reels (plural) URL" do
     reel = media(:instagram_post).dup
-    reel.normalized_url = "https://www.instagram.com/reels/Daf55orR4Bj/"
+    reel.normalized_url = "https://www.instagram.com/reel/Daf55orR4Bj/"
     assert_equal "https://www.instagram.com/reel/Daf55orR4Bj/embed/", reel.embed_url
   end
 

@@ -114,6 +114,7 @@ class Media < ApplicationRecord
       end
 
       uri.host = "www.instagram.com" if uri.host&.match?(/instagr\.am/)
+      uri.path = uri.path.sub(%r{\A/reels/}, "/reel/") if uri.host&.match?(/instagram\.com/)
       uri.host = "www.tiktok.com" if uri.host == "m.tiktok.com"
 
       uri.query = nil
