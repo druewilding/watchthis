@@ -165,7 +165,11 @@ class Media < ApplicationRecord
       http.open_timeout = 5
       http.read_timeout = 10
       req = Net::HTTP::Get.new(uri.request_uri)
-      req["User-Agent"] = "Mozilla/5.0 (compatible; WatchThis/1.0)"
+      req["User-Agent"] = if uri.host.to_s.match?(/instagram\.com/)
+        "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)"
+      else
+        "Mozilla/5.0 (compatible; WatchThis/1.0)"
+      end
       req["Accept"] = "text/html,application/xhtml+xml"
       response = http.request(req)
       case response
