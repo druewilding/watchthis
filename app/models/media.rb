@@ -172,7 +172,7 @@ class Media < ApplicationRecord
       tag = html.match(/<meta\b[^>]*\bproperty=["']og:#{Regexp.escape(property)}["'][^>]*>/i)&.to_s
       return unless tag
       content = tag.match(/\bcontent="([^"]*)"/) || tag.match(/\bcontent='([^']*)'/)
-      CGI.unescapeHTML(content[1].force_encoding("UTF-8")).presence if content
+      CGI.unescapeHTML(content[1].force_encoding("UTF-8").scrub).presence if content
     end
 
     def parse_published_time(html)
