@@ -21,6 +21,15 @@ module ActiveSupport
       Net::HTTP.define_singleton_method(:get, original)
     end
 
+    def stub_resolve_url(resolved_url)
+      Media.singleton_class.send(:alias_method, :__original_resolve_url, :resolve_url)
+      Media.define_singleton_method(:resolve_url) { |*| resolved_url }
+      yield
+    ensure
+      Media.singleton_class.send(:alias_method, :resolve_url, :__original_resolve_url)
+      Media.singleton_class.send(:undef_method, :__original_resolve_url)
+    end
+
     def stub_og_fetch(html)
       Media.singleton_class.send(:alias_method, :__original_fetch_html, :fetch_html)
       Media.define_singleton_method(:fetch_html) { |*| html }

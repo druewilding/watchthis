@@ -59,6 +59,7 @@ class Media < ApplicationRecord
   class << self
     def find_or_create_from_url(url, added_by:)
       normalized = normalize(url)
+      normalized = normalize(resolve_url(normalized)) if short_tiktok_url?(normalized)
       find_by(normalized_url: normalized) || create_from_url(url, normalized, added_by:)
     end
 
@@ -120,6 +121,27 @@ class Media < ApplicationRecord
       uri.query = nil
       uri.fragment = nil
       uri.to_s
+    end
+
+    def short_tiktok_url?(url)
+      URI.parse(url).host.to_s.match?(/\A(?:vm|vt)\.tiktok\.com\z/)
+    end
+
+    def resolve_url(url, redirects_left = 5)
+      return url if redirects_left == 0
+      uri = URI.parse(url)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = (uri.scheme == "https")
+      http.open_timeout = 5
+      http.read_timeout = 5
+      response = http.request(Net::HTTP::Head.new(uri.request_uri, "User-Agent" => "Mozilla/5.0 (compatible; WatchThis/1.0)"))
+      case response
+      when Net::HTTPSuccess then url
+      when Net::HTTPRedirection then resolve_url(response["location"], redirects_left - 1)
+      else url
+      end
+    rescue
+      url
     end
 
     def extract_youtube_id(normalized_url)

@@ -145,6 +145,18 @@ class MediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "find_or_create_from_url resolves TikTok short URL to full URL before creating" do
+    stub_resolve_url("https://www.tiktok.com/@catuser/video/7418649950270607622") do
+      media = nil
+      assert_difference "Media.count" do
+        media = Media.find_or_create_from_url("https://vm.tiktok.com/ZNREKtLFd/", added_by: users(:alice))
+      end
+      assert_equal "tiktok", media.platform
+      assert_equal "https://www.tiktok.com/@catuser/video/7418649950270607622", media.normalized_url
+      assert_equal "https://www.tiktok.com/embed/v2/7418649950270607622", media.embed_url
+    end
+  end
+
   test "find_or_create_from_url creates tiktok media with correct platform" do
     assert_difference "Media.count" do
       assert_enqueued_with(job: FetchMediaMetadataJob) do
