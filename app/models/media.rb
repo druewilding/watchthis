@@ -53,15 +53,7 @@ class Media < ApplicationRecord
     metadata = self.class.send(:fetch_og_metadata, normalized_url)
     metadata.merge!(self.class.send(:fetch_oembed, normalized_url, oembed_endpoint)) if oembed_endpoint
 
-    update!(
-      title: metadata[:title],
-      thumbnail_url: metadata[:thumbnail_url],
-      author: metadata[:author],
-      description: metadata[:description],
-      site_name: metadata[:site_name],
-      published_at: metadata[:published_at],
-      metadata_fetched_at: Time.current
-    )
+    update!({metadata_fetched_at: Time.current}.merge(metadata))
   end
 
   class << self
@@ -165,17 +157,11 @@ class Media < ApplicationRecord
       http.open_timeout = 5
       http.read_timeout = 10
       req = Net::HTTP::Get.new(uri.request_uri)
-      req["User-Agent"] = if uri.host.to_s.match?(/instagram\.com/)
-        "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)"
-      else
-        "Mozilla/5.0 (compatible; WatchThis/1.0)"
-      end
+      req["User-Agent"] = "Mozilla/5.0 (compatible; WatchThis/1.0)"
       req["Accept"] = "text/html,application/xhtml+xml"
       response = http.request(req)
       case response
-      when Net::HTTPSuccess
-        charset = response.type_params["charset"] || "UTF-8"
-        response.body.encode("UTF-8", charset, invalid: :replace, undef: :replace)
+      when Net::HTTPSuccess then response.body
       when Net::HTTPRedirection then fetch_html(response["location"], redirects_left - 1)
       end
     rescue
