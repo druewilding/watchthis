@@ -12,6 +12,31 @@ youtube_video:
   created_at: 2024-01-01 00:00:00
   updated_at: 2024-01-01 00:00:00
 
+instagram_post:
+  id: 300000001
+  url: https://www.instagram.com/p/ABC123/
+  normalized_url: https://www.instagram.com/p/ABC123/
+  platform: instagram
+  title: A beautiful photo
+  thumbnail_url: https://example.com/ig-thumb.jpg
+  metadata_fetched_at: 2024-01-01 00:00:00
+  added_by_id: 663665735
+  created_at: 2024-01-01 00:00:00
+  updated_at: 2024-01-01 00:00:00
+
+tiktok_video:
+  id: 300000002
+  url: https://www.tiktok.com/@user/video/7418649950270607622
+  normalized_url: https://www.tiktok.com/@user/video/7418649950270607622
+  platform: tiktok
+  title: A funny video
+  author: "@user"
+  thumbnail_url: https://example.com/tt-thumb.jpg
+  metadata_fetched_at: 2024-01-01 00:00:00
+  added_by_id: 663665735
+  created_at: 2024-01-01 00:00:00
+  updated_at: 2024-01-01 00:00:00
+
 generic_article:
   id: 1064578105
   url: https://example.com/article

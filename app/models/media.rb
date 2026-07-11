@@ -15,8 +15,28 @@ class Media < ApplicationRecord
     platform == "youtube"
   end
 
+  def instagram?
+    platform == "instagram"
+  end
+
+  def tiktok?
+    platform == "tiktok"
+  end
+
   def embed_url
-    "https://www.youtube.com/embed/#{youtube_id}" if youtube?
+    case platform
+    when "youtube"
+      "https://www.youtube.com/embed/#{youtube_id}"
+    when "instagram"
+      m = normalized_url.match(%r{instagram\.com/(p|reels?|tv)/([^/?]+)})
+      if m
+        type = (m[1] == "reels") ? "reel" : m[1]
+        "https://www.instagram.com/#{type}/#{m[2]}/embed/"
+      end
+    when "tiktok"
+      m = normalized_url.match(%r{tiktok\.com/@[^/]+/video/(\d+)})
+      "https://www.tiktok.com/embed/v2/#{m[1]}" if m
+    end
   end
 
   def metadata_fetched?
@@ -24,20 +44,16 @@ class Media < ApplicationRecord
   end
 
   def fetch_and_update_metadata!
-    metadata = if youtube?
-      self.class.send(:fetch_og_metadata, normalized_url).merge(self.class.send(:fetch_oembed, normalized_url))
-    else
-      self.class.send(:fetch_og_metadata, normalized_url)
+    oembed_endpoint = if youtube?
+      "https://www.youtube.com/oembed"
+    elsif tiktok?
+      "https://www.tiktok.com/oembed"
     end
-    update!(
-      title: metadata[:title],
-      thumbnail_url: metadata[:thumbnail_url],
-      author: metadata[:author],
-      description: metadata[:description],
-      site_name: metadata[:site_name],
-      published_at: metadata[:published_at],
-      metadata_fetched_at: Time.current
-    )
+
+    metadata = self.class.send(:fetch_og_metadata, normalized_url)
+    metadata.merge!(self.class.send(:fetch_oembed, normalized_url, oembed_endpoint)) if oembed_endpoint
+
+    update!({metadata_fetched_at: Time.current}.merge(metadata))
   end
 
   class << self
@@ -50,7 +66,7 @@ class Media < ApplicationRecord
 
     def create_from_url(url, normalized, added_by:)
       youtube_id = extract_youtube_id(normalized)
-      platform = youtube_id ? "youtube" : "generic"
+      platform = detect_platform(normalized)
       media = create!(
         url: url,
         normalized_url: normalized,
@@ -62,6 +78,19 @@ class Media < ApplicationRecord
       media
     end
 
+    def detect_platform(normalized)
+      host = URI.parse(normalized).host.to_s
+      if extract_youtube_id(normalized)
+        "youtube"
+      elsif host.match?(/\A(?:www\.)?instagram\.com\z/) || host == "instagr.am"
+        "instagram"
+      elsif host.match?(/\A(?:www\.|vm\.|vt\.)?tiktok\.com\z/)
+        "tiktok"
+      else
+        "generic"
+      end
+    end
+
     def normalize(url)
       url = url.strip
       url = "https://#{url}" unless url.match?(/\Ahttps?:\/\//i)
@@ -69,20 +98,24 @@ class Media < ApplicationRecord
       uri.scheme = uri.scheme&.downcase
       uri.host = uri.host&.downcase
 
-      if uri.host&.match?(/youtu\.be/)
+      if uri.host == "youtu.be"
         id = uri.path.delete_prefix("/")
         return "https://www.youtube.com/watch?v=#{id}"
       end
 
-      if uri.host&.match?(/youtube\.com/) && uri.path.start_with?("/shorts/")
+      if uri.host&.match?(/\A(?:www\.)?youtube\.com\z/) && uri.path.start_with?("/shorts/")
         id = uri.path.split("/").last
         return "https://www.youtube.com/watch?v=#{id}"
       end
 
-      if uri.host&.match?(/youtube\.com/) && uri.path == "/watch"
+      if uri.host&.match?(/\A(?:www\.)?youtube\.com\z/) && uri.path == "/watch"
         params = URI.decode_www_form(uri.query.to_s).to_h
         return "https://www.youtube.com/watch?v=#{params["v"]}" if params["v"]
       end
+
+      uri.host = "www.instagram.com" if uri.host == "instagr.am"
+      uri.path = uri.path.sub(%r{\A/reels/}, "/reel/") if uri.host&.match?(/\A(?:www\.)?instagram\.com\z/)
+      uri.host = "www.tiktok.com" if uri.host == "m.tiktok.com"
 
       uri.query = nil
       uri.fragment = nil
@@ -94,8 +127,8 @@ class Media < ApplicationRecord
       params["v"].presence
     end
 
-    def fetch_oembed(url)
-      oembed_uri = URI("https://www.youtube.com/oembed?url=#{CGI.escape(url)}&format=json")
+    def fetch_oembed(url, endpoint)
+      oembed_uri = URI("#{endpoint}?url=#{CGI.escape(url)}&format=json")
       response = Net::HTTP.get(oembed_uri)
       data = JSON.parse(response)
       {title: data["title"], thumbnail_url: data["thumbnail_url"], author: data["author_name"]}
@@ -140,7 +173,7 @@ class Media < ApplicationRecord
       tag = html.match(/<meta\b[^>]*\bproperty=["']og:#{Regexp.escape(property)}["'][^>]*>/i)&.to_s
       return unless tag
       content = tag.match(/\bcontent="([^"]*)"/) || tag.match(/\bcontent='([^']*)'/)
-      CGI.unescapeHTML(content[1]).presence if content
+      CGI.unescapeHTML(content[1].force_encoding("UTF-8").scrub).presence if content
     end
 
     def parse_published_time(html)
