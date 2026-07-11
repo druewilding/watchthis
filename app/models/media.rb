@@ -82,9 +82,9 @@ class Media < ApplicationRecord
       host = URI.parse(normalized).host.to_s
       if extract_youtube_id(normalized)
         "youtube"
-      elsif host.match?(/(?:www\.)?instagram\.com|instagr\.am/)
+      elsif host.match?(/\A(?:www\.)?instagram\.com\z/) || host == "instagr.am"
         "instagram"
-      elsif host.match?(/(?:www\.|vm\.|vt\.)?tiktok\.com/)
+      elsif host.match?(/\A(?:www\.|vm\.|vt\.)?tiktok\.com\z/)
         "tiktok"
       else
         "generic"
@@ -98,23 +98,23 @@ class Media < ApplicationRecord
       uri.scheme = uri.scheme&.downcase
       uri.host = uri.host&.downcase
 
-      if uri.host&.match?(/youtu\.be/)
+      if uri.host == "youtu.be"
         id = uri.path.delete_prefix("/")
         return "https://www.youtube.com/watch?v=#{id}"
       end
 
-      if uri.host&.match?(/youtube\.com/) && uri.path.start_with?("/shorts/")
+      if uri.host&.match?(/\A(?:www\.)?youtube\.com\z/) && uri.path.start_with?("/shorts/")
         id = uri.path.split("/").last
         return "https://www.youtube.com/watch?v=#{id}"
       end
 
-      if uri.host&.match?(/youtube\.com/) && uri.path == "/watch"
+      if uri.host&.match?(/\A(?:www\.)?youtube\.com\z/) && uri.path == "/watch"
         params = URI.decode_www_form(uri.query.to_s).to_h
         return "https://www.youtube.com/watch?v=#{params["v"]}" if params["v"]
       end
 
-      uri.host = "www.instagram.com" if uri.host&.match?(/instagr\.am/)
-      uri.path = uri.path.sub(%r{\A/reels/}, "/reel/") if uri.host&.match?(/instagram\.com/)
+      uri.host = "www.instagram.com" if uri.host == "instagr.am"
+      uri.path = uri.path.sub(%r{\A/reels/}, "/reel/") if uri.host&.match?(/\A(?:www\.)?instagram\.com\z/)
       uri.host = "www.tiktok.com" if uri.host == "m.tiktok.com"
 
       uri.query = nil
