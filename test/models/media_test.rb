@@ -204,6 +204,15 @@ class MediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "find_or_create_from_url decodes hex HTML entities in OG title (emojis)" do
+    html = '<meta property="og:title" content="Xylophone Cat &#x1f63b;&#x2728;">'
+    stub_og_fetch(html.b) do
+      media = nil
+      perform_enqueued_jobs { media = Media.find_or_create_from_url("https://example.com/emoji-title", added_by: users(:alice)) }
+      assert_equal "Xylophone Cat 😻✨", media.reload.title
+    end
+  end
+
   test "find_or_create_from_url fetches OG metadata for generic URL" do
     html = <<~HTML
       <html><head>

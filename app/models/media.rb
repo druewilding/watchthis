@@ -169,7 +169,9 @@ class Media < ApplicationRecord
       req["Accept"] = "text/html,application/xhtml+xml"
       response = http.request(req)
       case response
-      when Net::HTTPSuccess then response.body
+      when Net::HTTPSuccess
+        charset = response.type_params["charset"] || "UTF-8"
+        response.body.encode("UTF-8", charset, invalid: :replace, undef: :replace)
       when Net::HTTPRedirection then fetch_html(response["location"], redirects_left - 1)
       end
     rescue
@@ -180,7 +182,7 @@ class Media < ApplicationRecord
       tag = html.match(/<meta\b[^>]*\bproperty=["']og:#{Regexp.escape(property)}["'][^>]*>/i)&.to_s
       return unless tag
       content = tag.match(/\bcontent="([^"]*)"/) || tag.match(/\bcontent='([^']*)'/)
-      CGI.unescapeHTML(content[1]).presence if content
+      CGI.unescapeHTML(content[1].force_encoding("UTF-8")).presence if content
     end
 
     def parse_published_time(html)
